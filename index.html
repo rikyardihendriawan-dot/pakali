@@ -216,17 +216,14 @@
             const element = document.getElementById('printableReceipt');
             const tglInput = new Date(document.getElementById('tglInput').value);
             
-            // Format Nama File: Struk_DD/MM/YY
             const day = String(tglInput.getDate()).padStart(2, '0');
             const month = String(tglInput.getMonth() + 1).padStart(2, '0');
             const year = String(tglInput.getFullYear()).substring(2);
             const fileName = `Struk_${day}/${month}/${year}`;
 
-            // Mendapatkan dimensi elemen asli untuk ukuran kertas kustom
             const widthInPx = element.offsetWidth;
             const heightInPx = element.offsetHeight;
             
-            // Konversi px ke mm (1px = 0.264583mm)
             const widthInMm = widthInPx * 0.264583;
             const heightInMm = heightInPx * 0.264583;
 
@@ -237,13 +234,18 @@
                 html2canvas: { 
                     scale: 3, 
                     useCORS: true,
-                    letterRendering: true
+                    letterRendering: true,
+                    scrollX: 0,
+                    scrollY: 0
                 },
                 jsPDF: { 
                     unit: 'mm', 
-                    format: [widthInMm, heightInMm], // Ukuran kertas pas mengikuti elemen
-                    orientation: 'portrait' 
-                }
+                    format: [widthInMm, heightInMm], 
+                    orientation: 'portrait',
+                    compress: true
+                },
+                // Mencegah penambahan halaman kosong
+                pagebreak: { mode: 'avoid-all' }
             };
 
             try {
@@ -268,4 +270,3 @@
     </script>
 </body>
 </html>
-
