@@ -222,30 +222,32 @@
             const year = String(tglInput.getFullYear()).substring(2);
             const fileName = `Struk_${day}/${month}/${year}`;
 
-            // Menggunakan format kertas 'a4' namun dengan skala yang tepat agar pas
-            // Atau format custom yang cukup lebar untuk menghindari pemotongan samping
+            // Mendapatkan dimensi elemen asli untuk ukuran kertas kustom
+            const widthInPx = element.offsetWidth;
+            const heightInPx = element.offsetHeight;
+            
+            // Konversi px ke mm (1px = 0.264583mm)
+            const widthInMm = widthInPx * 0.264583;
+            const heightInMm = heightInPx * 0.264583;
+
             const opt = {
-                margin: [5, 5, 5, 5], // Top, Left, Bottom, Right dalam mm
+                margin: 0,
                 filename: fileName + '.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
+                image: { type: 'jpeg', quality: 1 },
                 html2canvas: { 
                     scale: 3, 
                     useCORS: true,
-                    logging: false,
                     letterRendering: true
                 },
                 jsPDF: { 
                     unit: 'mm', 
-                    format: 'a4', 
+                    format: [widthInMm, heightInMm], // Ukuran kertas pas mengikuti elemen
                     orientation: 'portrait' 
                 }
             };
 
             try {
-                // Generate PDF as blob
                 const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
-                
-                // Ganti karakter '/' agar tidak merusak path file saat dibagikan
                 const safeFileName = fileName.replace(/\//g, '-') + '.pdf';
                 const file = new File([pdfBlob], safeFileName, { type: 'application/pdf' });
 
@@ -256,11 +258,10 @@
                         text: 'Struk Transaksi PLN'
                     });
                 } else {
-                    // Fallback unduh otomatis
                     html2pdf().set(opt).from(element).save();
                 }
             } catch (err) {
-                console.error("Gagal membagikan:", err);
+                console.error("Gagal memproses:", err);
                 alert("Gagal memproses struk.");
             }
         }
