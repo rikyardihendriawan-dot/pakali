@@ -125,7 +125,7 @@
             </div>
             <div class="flex justify-between">
                 <span>TARIF/DAYA</span>
-                <span>S2/5500 VA</span>
+                <span>S1/5500 VA</span>
             </div>
             <div class="flex justify-between font-bold">
                 <span>JML KWH</span>
@@ -134,7 +134,7 @@
             <div class="border-t border-gray-200 my-2"></div>
             <div class="flex justify-between">
                 <span>HARGA</span>
-                <span>RP. 480.000</span>
+                <span>RP. 600.000</span>
             </div>
             <div class="flex justify-between">
                 <span>ADMIN</span>
@@ -145,7 +145,7 @@
         <div class="dotted-line"></div>
         <div class="flex justify-between font-bold receipt-text">
             <span>TOTAL BAYAR</span>
-            <span>RP. 480.000</span>
+            <span>RP. 600.000</span>
         </div>
         <div class="dotted-line"></div>
 
@@ -221,9 +221,11 @@
             const year = String(tglInput.getFullYear()).substring(2);
             const fileName = `Struk_${day}/${month}/${year}`;
 
+            // Ambil dimensi asli elemen
             const widthInPx = element.offsetWidth;
             const heightInPx = element.offsetHeight;
             
+            // Konversi px ke mm dengan presisi lebih tinggi
             const widthInMm = widthInPx * 0.264583;
             const heightInMm = heightInPx * 0.264583;
 
@@ -232,24 +234,30 @@
                 filename: fileName + '.pdf',
                 image: { type: 'jpeg', quality: 1 },
                 html2canvas: { 
-                    scale: 3, 
+                    scale: 4, // Meningkatkan resolusi agar lebih tajam
                     useCORS: true,
                     letterRendering: true,
                     scrollX: 0,
-                    scrollY: 0
+                    scrollY: 0,
+                    windowWidth: widthInPx,
+                    windowHeight: heightInPx
                 },
                 jsPDF: { 
                     unit: 'mm', 
                     format: [widthInMm, heightInMm], 
                     orientation: 'portrait',
-                    compress: true
+                    compress: true,
+                    putOnlyUsedFonts: true
                 },
-                // Mencegah penambahan halaman kosong
+                // Paksa mode clipping agar tidak ada overflow konten ke halaman baru
                 pagebreak: { mode: 'avoid-all' }
             };
 
             try {
-                const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+                // Gunakan html2pdf worker untuk kontrol lebih presisi
+                const worker = html2pdf().set(opt).from(element);
+                const pdfBlob = await worker.output('blob');
+                
                 const safeFileName = fileName.replace(/\//g, '-') + '.pdf';
                 const file = new File([pdfBlob], safeFileName, { type: 'application/pdf' });
 
@@ -260,7 +268,7 @@
                         text: 'Struk Transaksi PLN'
                     });
                 } else {
-                    html2pdf().set(opt).from(element).save();
+                    worker.save();
                 }
             } catch (err) {
                 console.error("Gagal memproses:", err);
