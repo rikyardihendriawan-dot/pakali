@@ -125,7 +125,7 @@
             </div>
             <div class="flex justify-between">
                 <span>TARIF/DAYA</span>
-                <span>S1/5500 VA</span>
+                <span>S2/5500 VA</span>
             </div>
             <div class="flex justify-between font-bold">
                 <span>JML KWH</span>
@@ -134,7 +134,7 @@
             <div class="border-t border-gray-200 my-2"></div>
             <div class="flex justify-between">
                 <span>HARGA</span>
-                <span>RP. 600.000</span>
+                <span>RP. 480.000</span>
             </div>
             <div class="flex justify-between">
                 <span>ADMIN</span>
@@ -145,7 +145,7 @@
         <div class="dotted-line"></div>
         <div class="flex justify-between font-bold receipt-text">
             <span>TOTAL BAYAR</span>
-            <span>RP. 600.000</span>
+            <span>RP. 480.000</span>
         </div>
         <div class="dotted-line"></div>
 
@@ -219,46 +219,53 @@
             const day = String(tglInput.getDate()).padStart(2, '0');
             const month = String(tglInput.getMonth() + 1).padStart(2, '0');
             const year = String(tglInput.getFullYear()).substring(2);
-            const fileName = `Struk_${day}/${month}/${year}`;
+            const fileName = `Struk_${day}${month}${year}`;
 
             // Ambil dimensi asli elemen
-            const widthInPx = element.offsetWidth;
-            const heightInPx = element.offsetHeight;
+            const widthInPx = element.scrollWidth;
+            const heightInPx = element.scrollHeight;
             
-            // Konversi px ke mm dengan presisi lebih tinggi
+            // Konversi px ke mm dengan presisi (96 DPI standard)
+            // Menggunakan rasio 0.264583 untuk hasil lebih presisi
             const widthInMm = widthInPx * 0.264583;
-            const heightInMm = heightInPx * 0.264583;
+            const heightInMm = (heightInPx * 0.264583) + 1; // Ditambah 1mm toleransi agar tidak trigger halaman baru
 
             const opt = {
                 margin: 0,
                 filename: fileName + '.pdf',
                 image: { type: 'jpeg', quality: 1 },
                 html2canvas: { 
-                    scale: 4, // Meningkatkan resolusi agar lebih tajam
+                    scale: 3, 
                     useCORS: true,
                     letterRendering: true,
-                    scrollX: 0,
                     scrollY: 0,
-                    windowWidth: widthInPx,
-                    windowHeight: heightInPx
+                    scrollX: 0,
+                    width: widthInPx,
+                    height: heightInPx
                 },
                 jsPDF: { 
                     unit: 'mm', 
                     format: [widthInMm, heightInMm], 
                     orientation: 'portrait',
-                    compress: true,
-                    putOnlyUsedFonts: true
+                    compress: true
                 },
-                // Paksa mode clipping agar tidak ada overflow konten ke halaman baru
-                pagebreak: { mode: 'avoid-all' }
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
             try {
-                // Gunakan html2pdf worker untuk kontrol lebih presisi
-                const worker = html2pdf().set(opt).from(element);
+                // Memastikan kita hanya mengambil data satu halaman saja
+                const worker = html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+                    const totalPages = pdf.internal.getNumberOfPages();
+                    // Jika terdeteksi lebih dari 1 halaman, hapus sisanya
+                    if (totalPages > 1) {
+                        for (let i = totalPages; i > 1; i--) {
+                            pdf.deletePage(i);
+                        }
+                    }
+                });
+
                 const pdfBlob = await worker.output('blob');
-                
-                const safeFileName = fileName.replace(/\//g, '-') + '.pdf';
+                const safeFileName = fileName + '.pdf';
                 const file = new File([pdfBlob], safeFileName, { type: 'application/pdf' });
 
                 if (navigator.share && navigator.canShare({ files: [file] })) {
@@ -268,11 +275,10 @@
                         text: 'Struk Transaksi PLN'
                     });
                 } else {
-                    worker.save();
+                    html2pdf().set(opt).from(element).save();
                 }
             } catch (err) {
                 console.error("Gagal memproses:", err);
-                alert("Gagal memproses struk.");
             }
         }
     </script>
