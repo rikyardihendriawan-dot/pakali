@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generator Struk SMART Mobile</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library untuk konversi HTML ke PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
 
@@ -34,12 +36,9 @@
             text-transform: uppercase;
         }
 
-        /* Aturan khusus untuk pencetakan */
         @media print {
-            /* Sembunyikan semua elemen kecuali kontainer struk */
             body * {
                 visibility: hidden;
-                background: white !important;
             }
             .no-print {
                 display: none !important;
@@ -47,7 +46,6 @@
             #printableReceipt, #printableReceipt * {
                 visibility: visible;
             }
-            /* Posisikan struk di pojok kiri atas saat dicetak */
             #printableReceipt {
                 position: absolute;
                 left: 0;
@@ -56,9 +54,6 @@
                 box-shadow: none;
                 padding: 0;
                 margin: 0;
-            }
-            body {
-                background-color: white !important;
             }
         }
 
@@ -69,7 +64,7 @@
 </head>
 <body class="flex flex-col items-center py-10">
 
-    <!-- Panel Kontrol (Hanya muncul di layar) -->
+    <!-- Panel Kontrol -->
     <div class="no-print bg-white p-6 rounded-lg shadow-md mb-8 w-full max-w-md border-l-4 border-blue-500">
         <h2 class="text-xl font-bold mb-4 font-sans text-blue-800">Panel Kontrol Struk</h2>
         <div class="space-y-4">
@@ -80,22 +75,23 @@
             <button onclick="generateData()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition font-sans text-sm">
                 Update Data Struk
             </button>
-            <button onclick="window.print()" class="w-full bg-gray-800 text-white font-bold py-2 rounded-md hover:bg-black transition font-sans text-sm">
-                Cetak Struk
+            <button onclick="shareAsPDF()" class="w-full bg-green-600 text-white font-bold py-2 rounded-md hover:bg-green-700 transition font-sans text-sm flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+                </svg>
+                Bagikan Struk (PDF)
             </button>
         </div>
     </div>
 
     <!-- Kontainer Struk -->
     <div class="receipt" id="printableReceipt">
-        <!-- Header -->
         <div class="text-center mb-4">
             <h1 class="text-xl font-bold">SMART Mobile</h1>
             <p class="text-xs">PT. ESCOM SMART INDONESIA</p>
             <p class="text-xs">Jln. Jendral Sudirman No 60 Lampung</p>
         </div>
 
-        <!-- Meta Data -->
         <div class="receipt-text space-y-1">
             <div class="flex">
                 <span class="w-24 shrink-0">TGL CETAK</span>
@@ -118,7 +114,6 @@
         <div class="text-center font-bold my-1 receipt-text">STRUK PRABAYAR LISTRIK</div>
         <div class="dotted-line"></div>
 
-        <!-- Data Pelanggan -->
         <div class="receipt-text space-y-1">
             <div class="flex justify-between">
                 <span>ID PELANGGAN</span>
@@ -130,16 +125,16 @@
             </div>
             <div class="flex justify-between">
                 <span>TARIF/DAYA</span>
-                <span>S1/5500 VA</span>
+                <span>S2/5500 VA</span>
             </div>
             <div class="flex justify-between font-bold">
                 <span>JML KWH</span>
-                <span>240</span>
+                <span>240,0</span>
             </div>
             <div class="border-t border-gray-200 my-2"></div>
             <div class="flex justify-between">
                 <span>HARGA</span>
-                <span>RP. 600.000</span>
+                <span>RP. 480.000</span>
             </div>
             <div class="flex justify-between">
                 <span>ADMIN</span>
@@ -150,11 +145,10 @@
         <div class="dotted-line"></div>
         <div class="flex justify-between font-bold receipt-text">
             <span>TOTAL BAYAR</span>
-            <span>RP. 600.000</span>
+            <span>RP. 480.000</span>
         </div>
         <div class="dotted-line"></div>
 
-        <!-- Bagian Token -->
         <div class="text-center my-4">
             <p class="font-bold text-sm mb-2">TOKEN</p>
             <p class="text-lg font-bold tracking-tight whitespace-nowrap overflow-hidden" id="displayToken">0000-0000-0000-0000-0000</p>
@@ -162,7 +156,6 @@
 
         <div class="dotted-line"></div>
 
-        <!-- Footer -->
         <div class="text-center text-[10px] leading-tight space-y-2 mt-4 italic">
             <p>PLN Menyatakan struk ini sebagai bukti Pembelian yang sah</p>
             <p>Informasi Hubungi Call 123 Atau Hub PLN Terdekat.</p>
@@ -175,7 +168,6 @@
     </div>
 
     <script>
-        // Set nilai default input ke waktu sekarang saat dimuat
         window.onload = () => {
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -211,17 +203,54 @@
         function generateData() {
             const inputVal = document.getElementById('tglInput').value;
             if (!inputVal) return;
-
             const tglTrans = new Date(inputVal);
-            
-            // Tanggal cetak otomatis dibuat 30 detik setelah transaksi
             const tglCetak = new Date(tglTrans.getTime() + 30000);
 
-            // Perbarui antarmuka
             document.getElementById('displayTglTrans').innerText = formatTanggal(tglTrans);
             document.getElementById('displayTglCetak').innerText = formatTanggal(tglCetak);
             document.getElementById('displayNoTrans').innerText = generateNoTrans();
             document.getElementById('displayToken').innerText = generateToken();
+        }
+
+        async function shareAsPDF() {
+            const element = document.getElementById('printableReceipt');
+            const tglInput = new Date(document.getElementById('tglInput').value);
+            
+            // Format Nama File: Struk_DD/MM/YY
+            const day = String(tglInput.getDate()).padStart(2, '0');
+            const month = String(tglInput.getMonth() + 1).padStart(2, '0');
+            const year = String(tglInput.getFullYear()).substring(2);
+            const fileName = `Struk_${day}/${month}/${year}`;
+
+            const opt = {
+                margin: 10,
+                filename: fileName + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: [100, 200], orientation: 'portrait' }
+            };
+
+            try {
+                // Proses PDF
+                const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+                const file = new File([pdfBlob], `${fileName.replace(/\//g, '-')}.pdf`, { type: 'application/pdf' });
+
+                // Cek fitur Web Share API (terutama untuk HP/WhatsApp)
+                if (navigator.share && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: fileName,
+                        text: 'Berikut adalah struk transaksi Anda.'
+                    });
+                } else {
+                    // Fallback download otomatis jika tidak bisa share
+                    html2pdf().set(opt).from(element).save();
+                    alert("PDF berhasil dibuat dan diunduh.");
+                }
+            } catch (err) {
+                console.error("Gagal membagikan:", err);
+                alert("Terjadi kesalahan saat membuat PDF.");
+            }
         }
     </script>
 </body>
