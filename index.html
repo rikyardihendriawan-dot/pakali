@@ -1,1 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Struk SMART Mobile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library untuk konversi HTML ke PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+
+        body {
+            background-color: #e5e7eb;
+            font-family: 'Courier Prime', monospace;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .receipt {
+            width: 400px;
+            background: white;
+            padding: 25px;
+            color: #1a1a1a;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .dotted-line {
+            border-top: 2px dotted #000;
+            margin: 8px 0;
+            width: 100%;
+        }
+
+        .receipt-text {
+            font-size: 13px;
+            line-height: 1.3;
+            text-transform: uppercase;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .no-print {
+                display: none !important;
+            }
+            #printableReceipt, #printableReceipt * {
+                visibility: visible;
+            }
+            #printableReceipt {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+            }
+        }
+
+        input[type="datetime-local"] {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center py-10">
+
+    <!-- Panel Kontrol -->
+    <div class="no-print bg-white p-6 rounded-lg shadow-md mb-8 w-full max-w-md border-l-4 border-blue-500">
+        <h2 class="text-xl font-bold mb-4 font-sans text-blue-800">Panel Kontrol Struk</h2>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 font-sans">Tanggal & Waktu Transaksi</label>
+                <input type="datetime-local" id="tglInput" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+            </div>
+            <button onclick="generateData()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition font-sans text-sm">
+                Update Data Struk
+            </button>
+            <button onclick="shareAsPDF()" class="w-full bg-green-600 text-white font-bold py-2 rounded-md hover:bg-green-700 transition font-sans text-sm flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+                </svg>
+                Bagikan Struk (PDF)
+            </button>
+        </div>
+    </div>
+
+    <!-- Kontainer Struk -->
+    <div class="receipt" id="printableReceipt">
+        <div class="text-center mb-4">
+            <h1 class="text-xl font-bold">SMART Mobile</h1>
+            <p class="text-xs">PT. ESCOM SMART INDONESIA</p>
+            <p class="text-xs">Jln. Jendral Sudirman No 60 Lampung</p>
+        </div>
+
+        <div class="receipt-text space-y-1">
+            <div class="flex">
+                <span class="w-24 shrink-0">TGL CETAK</span>
+                <span class="mr-2">:</span>
+                <span id="displayTglCetak" class="whitespace-nowrap">-</span>
+            </div>
+            <div class="flex">
+                <span class="w-24 shrink-0">NO TRANS</span>
+                <span class="mr-2">:</span>
+                <span id="displayNoTrans">-</span>
+            </div>
+            <div class="flex">
+                <span class="w-24 shrink-0">TGL TRANS</span>
+                <span class="mr-2">:</span>
+                <span id="displayTglTrans" class="whitespace-nowrap">-</span>
+            </div>
+        </div>
+
+        <div class="dotted-line"></div>
+        <div class="text-center font-bold my-1 receipt-text">STRUK PRABAYAR LISTRIK</div>
+        <div class="dotted-line"></div>
+
+        <div class="receipt-text space-y-1">
+            <div class="flex justify-between">
+                <span>ID PELANGGAN</span>
+                <span>14398755174</span>
+            </div>
+            <div class="flex justify-between">
+                <span>NAMA</span>
+                <span>SMA DARUSY SYAFA'AH</span>
+            </div>
+            <div class="flex justify-between">
+                <span>TARIF/DAYA</span>
+                <span>S2/5500 VA</span>
+            </div>
+            <div class="flex justify-between font-bold">
+                <span>JML KWH</span>
+                <span>240,0</span>
+            </div>
+            <div class="border-t border-gray-200 my-2"></div>
+            <div class="flex justify-between">
+                <span>HARGA</span>
+                <span>RP. 480.000</span>
+            </div>
+            <div class="flex justify-between">
+                <span>ADMIN</span>
+                <span>RP. 0</span>
+            </div>
+        </div>
+
+        <div class="dotted-line"></div>
+        <div class="flex justify-between font-bold receipt-text">
+            <span>TOTAL BAYAR</span>
+            <span>RP. 480.000</span>
+        </div>
+        <div class="dotted-line"></div>
+
+        <div class="text-center my-4">
+            <p class="font-bold text-sm mb-2">TOKEN</p>
+            <p class="text-lg font-bold tracking-tight whitespace-nowrap overflow-hidden" id="displayToken">0000-0000-0000-0000-0000</p>
+        </div>
+
+        <div class="dotted-line"></div>
+
+        <div class="text-center text-[10px] leading-tight space-y-2 mt-4 italic">
+            <p>PLN Menyatakan struk ini sebagai bukti Pembelian yang sah</p>
+            <p>Informasi Hubungi Call 123 Atau Hub PLN Terdekat.</p>
+            <div class="mt-4">
+                <p>Terimakasih</p>
+                <p>Nikmati satu AKUN untuk semua TRANSAKSI</p>
+                <p class="normal-case">www.escomsmart.com</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = () => {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('tglInput').value = now.toISOString().slice(0, 16);
+            generateData();
+        };
+
+        function formatTanggal(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            
+            return `${day} ${month} ${year} ${hours}:${minutes}:${seconds}`;
+        }
+
+        function generateToken() {
+            let result = '';
+            for (let i = 0; i < 5; i++) {
+                const segment = Math.floor(1000 + Math.random() * 9000).toString();
+                result += segment + (i === 4 ? '' : '-');
+            }
+            return result;
+        }
+
+        function generateNoTrans() {
+            return Math.floor(100000000000 + Math.random() * 900000000000).toString();
+        }
+
+        function generateData() {
+            const inputVal = document.getElementById('tglInput').value;
+            if (!inputVal) return;
+            const tglTrans = new Date(inputVal);
+            const tglCetak = new Date(tglTrans.getTime() + 30000);
+
+            document.getElementById('displayTglTrans').innerText = formatTanggal(tglTrans);
+            document.getElementById('displayTglCetak').innerText = formatTanggal(tglCetak);
+            document.getElementById('displayNoTrans').innerText = generateNoTrans();
+            document.getElementById('displayToken').innerText = generateToken();
+        }
+
+        async function shareAsPDF() {
+            const element = document.getElementById('printableReceipt');
+            const tglInput = new Date(document.getElementById('tglInput').value);
+            
+            // Format Nama File: Struk_DD/MM/YY
+            const day = String(tglInput.getDate()).padStart(2, '0');
+            const month = String(tglInput.getMonth() + 1).padStart(2, '0');
+            const year = String(tglInput.getFullYear()).substring(2);
+            const fileName = `Struk_${day}/${month}/${year}`;
+
+            // Mendapatkan dimensi elemen asli untuk ukuran kertas kustom
+            const widthInPx = element.offsetWidth;
+            const heightInPx = element.offsetHeight;
+            
+            // Konversi px ke mm (1px = 0.264583mm)
+            const widthInMm = widthInPx * 0.264583;
+            const heightInMm = heightInPx * 0.264583;
+
+            const opt = {
+                margin: 0,
+                filename: fileName + '.pdf',
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { 
+                    scale: 3, 
+                    useCORS: true,
+                    letterRendering: true
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: [widthInMm, heightInMm], // Ukuran kertas pas mengikuti elemen
+                    orientation: 'portrait' 
+                }
+            };
+
+            try {
+                const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+                const safeFileName = fileName.replace(/\//g, '-') + '.pdf';
+                const file = new File([pdfBlob], safeFileName, { type: 'application/pdf' });
+
+                if (navigator.share && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: fileName,
+                        text: 'Struk Transaksi PLN'
+                    });
+                } else {
+                    html2pdf().set(opt).from(element).save();
+                }
+            } catch (err) {
+                console.error("Gagal memproses:", err);
+                alert("Gagal memproses struk.");
+            }
+        }
+    </script>
+</body>
+</html>
 
