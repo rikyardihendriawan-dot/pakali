@@ -222,34 +222,46 @@
             const year = String(tglInput.getFullYear()).substring(2);
             const fileName = `Struk_${day}/${month}/${year}`;
 
+            // Menggunakan format kertas 'a4' namun dengan skala yang tepat agar pas
+            // Atau format custom yang cukup lebar untuk menghindari pemotongan samping
             const opt = {
-                margin: 10,
+                margin: [5, 5, 5, 5], // Top, Left, Bottom, Right dalam mm
                 filename: fileName + '.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: [100, 200], orientation: 'portrait' }
+                html2canvas: { 
+                    scale: 3, 
+                    useCORS: true,
+                    logging: false,
+                    letterRendering: true
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                }
             };
 
             try {
-                // Proses PDF
+                // Generate PDF as blob
                 const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
-                const file = new File([pdfBlob], `${fileName.replace(/\//g, '-')}.pdf`, { type: 'application/pdf' });
+                
+                // Ganti karakter '/' agar tidak merusak path file saat dibagikan
+                const safeFileName = fileName.replace(/\//g, '-') + '.pdf';
+                const file = new File([pdfBlob], safeFileName, { type: 'application/pdf' });
 
-                // Cek fitur Web Share API (terutama untuk HP/WhatsApp)
                 if (navigator.share && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         files: [file],
                         title: fileName,
-                        text: 'Berikut adalah struk transaksi Anda.'
+                        text: 'Struk Transaksi PLN'
                     });
                 } else {
-                    // Fallback download otomatis jika tidak bisa share
+                    // Fallback unduh otomatis
                     html2pdf().set(opt).from(element).save();
-                    alert("PDF berhasil dibuat dan diunduh.");
                 }
             } catch (err) {
                 console.error("Gagal membagikan:", err);
-                alert("Terjadi kesalahan saat membuat PDF.");
+                alert("Gagal memproses struk.");
             }
         }
     </script>
